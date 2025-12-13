@@ -125,12 +125,59 @@ public class UserServiceTest {
 	public void TestGetUserById() {
 		String userId = "afddfsfsdf";
 		user.setUserId(userId);
-		Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+		Mockito.when(userRepository.findById(Mockito.anyString())).thenReturn(Optional.of(user));
 		UserDto userById = userService.getUserById(userId);
 		Assertions.assertNotNull(userById);
 		Assertions.assertEquals(user.getUserId(), userById.getUserId(),"Name not matched");
 		System.out.println("Expected : " + user.getUserId());
 		System.out.println("Actual : " + userById.getUserId());
+	}
+	
+	@Test
+	public void testGetUserByEmail() {
+		String email = "piyush1@gmail.com";
+		Mockito.when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+		UserDto userByEmail = userService.getUserByEmail(email);
+		Assertions.assertNotNull(userByEmail);
+		Assertions.assertEquals(user.getEmail(),userByEmail.getEmail(),"Email not matched");	
+		System.out.println("Expected : " + user.getEmail());
+		System.out.println("Actual : " + userByEmail.getEmail());
+	}
+	
+	@Test
+	public void testSearchUser() {
+		String keyword = "kumar";
+		User user1 = User.builder()
+				.name("Piyush kumar")
+				.email("piyushkumar@gmail.com")
+				.about("This is testing create")
+				.gender("Male")
+				.imageName("abc.png")
+				.password("abc")
+				.build();
+		
+		User user2 = User.builder()
+				.name("Rohan kumar")
+				.email("piyushkumar@gmail.com")
+				.about("This is testing create")
+				.gender("Male")
+				.imageName("abc.png")
+				.password("abc")
+				.build();
+		
+		User user3 = User.builder()
+				.name("Tushar kumar")
+				.email("piyushkumar@gmail.com")
+				.about("This is testing create")
+				.gender("Male")
+				.imageName("abc.png")
+				.password("abc")
+				.build();
+		
+		List<User> userList = Arrays.asList(user1, user2, user3);
+		Mockito.when(userRepository.findByNameContaining(keyword)).thenReturn(userList);
+		List<UserDto> userDtos = userService.searchUser(keyword);
+		Assertions.assertEquals(3, userDtos.size());
 	}
 
 }

@@ -22,6 +22,13 @@ import com.wp.estore.entities.User;
 import com.wp.estore.repositories.UserRepository;
 import com.wp.estore.services.UserService;
 
+/**
+ * Ways to do testing:
+ * Pure Mockito unit tests (BEST)
+ * SpringBootTest + MockitoBean (Your current way – OK)
+ * Full integration tests
+ */
+
 @SpringBootTest
 public class UserServiceTest {
 

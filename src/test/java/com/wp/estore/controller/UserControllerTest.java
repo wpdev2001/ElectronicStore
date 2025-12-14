@@ -1,6 +1,7 @@
 package com.wp.estore.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wp.estore.dtos.PageableResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -16,6 +17,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import com.wp.estore.dtos.UserDto;
 import com.wp.estore.entities.User;
 import com.wp.estore.services.UserService;
+
+import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -77,6 +80,42 @@ public class UserControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").exists());
+    }
+
+    @Test
+    public void testGetAllUsers(){
+        //creating user DTOs
+        UserDto userDto = UserDto.builder().userId("111").name("ABC").password("abc2001@").email("abc123@gmail.com").about("This is about ABC").gender("Male").imageName("abc.png").build();
+        UserDto userDto1 = UserDto.builder().userId("112").name("PQR").password("pqr2001@").email("pqr123@gmail.com").about("This is about PQR").gender("Female").imageName("pqr.png").build();
+        UserDto userDto2 = UserDto.builder().userId("113").name("XYZ").password("xyz2001@").email("xyz123@gmail.com").about("This is about XYZ").gender("Male").imageName("xyz.png").build();
+
+        PageableResponse <UserDto> pageableResponse = new PageableResponse<>();
+        pageableResponse.setContent(List.of(userDto,userDto1,userDto2));
+        pageableResponse.setPageNumber(1);
+        pageableResponse.setPageSize(10);
+        pageableResponse.setTotalElements(3);
+        pageableResponse.setTotalPages(1);
+        pageableResponse.setLastPage(false);
+
+        Mockito.when(userService.getAllUser(Mockito.anyInt(),Mockito.anyInt(),Mockito.anyString(),Mockito.anyString())).thenReturn(pageableResponse);
+
+        try{
+            this.mockMvc.perform(MockMvcRequestBuilders.get("/users")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content").isArray())
+                    .andExpect(jsonPath("$.content.length()").value(3))
+                    .andExpect(jsonPath("$.pageNumber").value(1))
+                    .andExpect(jsonPath("$.pageSize").value(10))
+                    .andExpect(jsonPath("$.totalElements").value(3))
+                    .andExpect(jsonPath("$.totalPages").value(1))
+                    .andExpect(jsonPath("$.lastPage").value(false));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private String convertObjectToJsonString(Object obj) {

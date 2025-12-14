@@ -1,6 +1,7 @@
 package com.wp.estore.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wp.estore.dtos.ApiResponseMessage;
 import com.wp.estore.dtos.PageableResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,7 @@ public class UserControllerTest {
 	@BeforeEach
 	public void init() {
 		user = User.builder()
+                .userId("ABC")
 				.name("Piyush")
 				.email("piyush123@gmail.com")
 				.about("This is testing create method")
@@ -116,6 +118,49 @@ public class UserControllerTest {
             throw new RuntimeException(e);
         }
 
+    }
+
+    @Test
+    public void testDeleteUser(){
+        String userId = "ABC";
+
+        Mockito.doNothing().when(userService).deleteUser(Mockito.anyString());
+
+        try{
+            this.mockMvc.perform(MockMvcRequestBuilders.delete("/users/{userId}",userId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.message").value("User deleted Successfully!!!"))
+                    .andExpect(jsonPath("$.success").value(true))
+                    .andExpect(jsonPath("$.status").value("OK"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void testGetUserById(){
+        String userId = "ABC";
+        Mockito.when(userService.getUserById(Mockito.anyString())).thenReturn(mapper.map(user,UserDto.class));
+        try{
+            this.mockMvc.perform(MockMvcRequestBuilders.get("/users/{userId}",userId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.name").value("Piyush"))
+                    .andExpect(jsonPath("$.email").value("piyush123@gmail.com"));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void uploadUserImage(){
+        // This test can be implemented when the image upload functionality is added.
+        // PENDING
     }
 
     private String convertObjectToJsonString(Object obj) {
